@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Vault of Desires</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Inter:wght@400;700&display=swap');
+        /* Общие стили для неонового эффекта и фона */
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0e12;
+            /* Почти черный */
+            color: #d1d5db;
+            /* Светло-серый */
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        /* Стиль для неонового текста */
+        
+        .neon-text {
+            font-family: 'VT323', monospace;
+            color: #00f0ff;
+            /* Неоновый голубой */
+            text-shadow: 0 0 5px #00a0ff, 0 0 10px #00a0ff;
+        }
+        /* Стиль для карточек предметов */
+        
+        .item-card {
+            background-color: rgba(18, 18, 26, 0.7);
+            /* Прозрачный темный */
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            box-shadow: 0 0 5px rgba(0, 240, 255, 0.1);
+        }
+        
+        .item-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        /* Анимация глитча для элементов */
+        
+        .glitch-effect {
+            animation: none;
+            /* Сначала анимация отключена */
+        }
+        /* Ключевые кадры для глитч-эффекта */
+        
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-2px, 2px);
+            }
+            40% {
+                transform: translate(-2px, -2px);
+            }
+            60% {
+                transform: translate(2px, 2px);
+            }
+            80% {
+                transform: translate(2px, -2px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+        /* Цифровой дождь на фоне (Матрица-эффект) */
+        
+        .digital-rain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: -10;
+            opacity: 0.1;
+            /* Очень легкая прозрачность */
+        }
+        
+        .rain-column {
+            position: absolute;
+            white-space: pre;
+            font-family: 'VT323', monospace;
+            color: #00ff41;
+            /* Зеленый "Матрица" */
+            font-size: 10px;
+            opacity: 0.7;
+        }
+        /* Анимация прокрутки столбцов дождя */
+        
+        @keyframes rain-drop {
+            from {
+                transform: translateY(-100%);
+            }
+            to {
+                transform: translateY(100vh);
+            }
+        }
+        /* Стиль для активной ссылки в навигации */
+        
+        .nav-link.active {
+            color: #fff;
+            background-color: rgba(0, 240, 255, 0.1);
+            border-left: 3px solid #00f0ff;
+        }
+        /* Стили для кнопки "Секретный Артефакт" */
+        
+        #secret-artifact-btn {
+            background-color: #440066;
+            border: 2px solid #ff00ff;
+            box-shadow: 0 0 10px #ff00ff, 0 0 20px rgba(255, 0, 255, 0.5);
+            transition: all 0.3s;
+        }
+        
+        #secret-artifact-btn:hover {
+            background-color: #660099;
+            transform: scale(1.05);
+        }
+        
+        #optional-section {
+            opacity: 0;
+            max-height: 0;
+            transition: opacity 0.5s ease-in-out, max-height 0.5s ease-in-out;
+            overflow: hidden;
+        }
+        
+        #optional-section.active {
+            opacity: 1;
+            max-height: 500px;
+            /* Достаточно большое значение */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Цифровой дождь на фоне -->
+    <div class="digital-rain" id="digital-rain"></div>
+
+    <!-- Навигация (Сайдбар) -->
+    <nav id="sidebar" class="fixed top-0 left-0 h-full w-20 md:w-48 bg-gray-900 bg-opacity-80 p-4 pt-16 z-20 shadow-xl">
+        <div class="space-y-4">
+            <a href="#header" class="nav-link block p-2 rounded-lg text-sm md:text-base hover:bg-gray-700 transition duration-200 active" data-target="header">
+                <span class="neon-text">/INIT</span><span class="hidden md:inline"> Запуск</span>
+            </a>
+            <a href="#clothing" class="nav-link block p-2 rounded-lg text-sm md:text-base hover:bg-gray-700 transition duration-200" data-target="clothing">
+                <span class="neon-text">/CLOAK</span><span class="hidden md:inline"> Одежда</span>
+            </a>
+            <a href="#hardware" class="nav-link block p-2 rounded-lg text-sm md:text-base hover:bg-gray-700 transition duration-200" data-target="hardware">
+                <span class="neon-text">/HW_INV</span><span class="hidden md:inline"> Техника</span>
+            </a>
+            <a href="#figures" class="nav-link block p-2 rounded-lg text-sm md:text-base hover:bg-gray-700 transition duration-200" data-target="figures">
+                <span class="neon-text">/DISPLAY</span><span class="hidden md:inline"> Фигурки</span>
+            </a>
+            <a href="#utilities" class="nav-link block p-2 rounded-lg text-sm md:text-base hover:bg-gray-700 transition duration-200" data-target="utilities">
+                <span class="neon-text">/UTILS</span><span class="hidden md:inline"> Всякое</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="ml-20 md:ml-48 p-4 md:p-10 pt-16 space-y-24 z-10">
+
+        <!-- Секция 1: Заголовок -->
+        <header id="header" class="min-h-screen flex items-center justify-center text-center -mt-16">
+            <div class="max-w-4xl p-6 rounded-xl bg-gray-900 bg-opacity-70 border-2 border-green-500 border-opacity-30">
+                <h1 class="text-4xl md:text-6xl font-extrabold mb-4 neon-text glitch-effect" data-glitch-text="THE VAULT OF DESIRES">
+                    THE VAULT OF DESIRES
+                </h1>
+                <p class="text-xl md:text-2xl text-green-400 font-mono">
+                    // Personal Inventory Access Granted. User: [CLASSIFIED]<br> // Status: Awaiting Resource Allocation.
+                </p>
+                <button onclick="document.getElementById('clothing').scrollIntoView();" class="mt-8 px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition duration-300 transform hover:scale-105">
+                    Начать просмотр
+                </button>
+            </div>
+        </header>
+
+        <!-- Секция 2: Одежда -->
+        <section id="clothing" class="min-h-[80vh] py-16">
+            <h2 class="text-3xl md:text-5xl font-bold mb-10 text-center neon-text glitch-effect" data-glitch-text="CLOAK & DAGGER">
+                CLOAK & DAGGER <span class="text-sm md:text-base block">(Одежда)</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Кепка Watch dogs -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 neon-text">&#x269B;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Кепка</h3>
+                    <p class="text-gray-400">Из *Watch Dogs* (Aiden Pearce style).</p>
+                    <p class="text-sm text-green-400 mt-2">ACCESSORY TYPE: Headwear. STATUS: Required.</p>
+                </div>
+                <!-- Рюкзак -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 neon-text">&#x1F4BC;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Рюкзак</h3>
+                    <p class="text-gray-400">Для хранения инвентаря.</p>
+                    <p class="text-sm text-green-400 mt-2">ACCESSORY TYPE: Storage. SIZE: Large.</p>
+                </div>
+                <!-- Футболка с принтом -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 neon-text">&#x1F455;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Футболка</h3>
+                    <p class="text-gray-400">С принтом (предпочтительно аниме).</p>
+                    <p class="text-sm text-yellow-400 mt-2">PRINT: Customizable (Anime preference).</p>
+                </div>
+                <!-- Шарф -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 neon-text">&#x1F9E3;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Шарф</h3>
+                    <p class="text-gray-400">Цвет: чёрный.</p>
+                    <p class="text-sm text-green-400 mt-2">COLOR: BLACK. ANIMATION: Subtle Wind.</p>
+                </div>
+                <!-- Кофта -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 neon-text">&#x1F9E5;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Кофта</h3>
+                    <p class="text-gray-400">С принтом (на вкус) или просто чёрная.</p>
+                    <p class="text-sm text-yellow-400 mt-2">OPTIONS: Print / Plain Black.</p>
+                </div>
+                <!-- Трусы (для полноты) -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 neon-text">&#x1F45F;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Трусы</h3>
+                    <p class="text-gray-400">Просто трусы :3</p>
+                    <p class="text-sm text-green-400 mt-2">SLOT: Underwear. PRIORITY: High.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция 3: Техника -->
+        <section id="hardware" class="min-h-[80vh] py-16">
+            <h2 class="text-3xl md:text-5xl font-bold mb-10 text-center neon-text glitch-effect" data-glitch-text="HARDWARE INVENTORY">
+                HARDWARE INVENTORY <span class="text-sm md:text-base block">(Техника)</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Lenovo Thinkpad A285 -->
+                <div class="item-card p-6 rounded-xl relative md:col-span-2">
+                    <div class="text-5xl mb-4 text-red-500">&#x1F4BB;</div>
+                    <h3 class="text-2xl font-bold mb-2 text-white">Lenovo Thinkpad A285</h3>
+                    <p class="text-gray-400">Или схожая модель для мобильной работы/хакинга.</p>
+                    <ul class="list-disc list-inside mt-3 text-red-300 font-mono">
+                        <li>CPU: Ryzen 5 PRO 2500U</li>
+                        <li>RAM: 16 GB</li>
+                        <li>GPU: AMD Radeon Vega 8</li>
+                    </ul>
+                    <p class="text-sm text-yellow-400 mt-4">CORE STATUS: Awaiting Acquisition</p>
+                    <div class="absolute top-4 right-4 text-sm bg-red-800 px-2 py-1 rounded-full border border-red-500">SYSTEM</div>
+                </div>
+                <!-- Флешка -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-4xl mb-4 text-red-500">&#x1F5AC;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Флешка</h3>
+                    <p class="text-gray-400">Для хранения данных и резервного копирования.</p>
+                    <p class="text-sm text-red-300 mt-2">MIN CAPACITY: 32 GB.</p>
+                    <div class="w-full bg-gray-700 h-2 mt-3 rounded-full overflow-hidden">
+                        <div class="h-full bg-red-500 animate-pulse w-3/4"></div>
+                    </div>
+                </div>
+                <!-- Геймпад -->
+                <div class="item-card p-6 rounded-xl relative md:col-span-3">
+                    <div class="text-4xl mb-4 text-red-500">&#x1F3AE;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Геймпад для ПК</h3>
+                    <p class="text-gray-400">Расположение стиков как на Xbox (Flydigi Dune Fox или аналог).</p>
+                    <p class="text-sm text-green-400 mt-2">LAYOUT: Xbox Standard.</p>
+                    <div class="flex space-x-4 mt-3">
+                        <div class="px-3 py-1 bg-green-900 text-green-400 rounded-full border border-green-500 transition duration-300 transform hover:scale-105" onmouseover="startGlitch(this)" onmouseout="stopGlitch(this)">
+                            D-PAD
+                        </div>
+                        <div class="px-3 py-1 bg-green-900 text-green-400 rounded-full border border-green-500 transition duration-300 transform hover:scale-105" onmouseover="startGlitch(this)" onmouseout="stopGlitch(this)">
+                            ANALOG STICKS (Xbox)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция 4: Фигурки -->
+        <section id="figures" class="min-h-[80vh] py-16">
+            <h2 class="text-3xl md:text-5xl font-bold mb-10 text-center neon-text glitch-effect" data-glitch-text="COLLECTOR'S DISPLAY">
+                COLLECTOR'S DISPLAY <span class="text-sm md:text-base block">(Фигурки)</span>
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <!-- Aiden Pearce -->
+                <div class="item-card p-4 rounded-xl text-center">
+                    <div class="text-5xl mb-3 text-blue-400">&#x1F464;</div>
+                    <h3 class="text-lg font-bold text-white">Aiden Pearce (Watch Dogs)</h3>
+                    <p class="text-xs text-gray-500">Hack the World</p>
+                    <div class="mt-2 text-xs bg-blue-900 text-blue-300 px-2 py-1 rounded-full border border-blue-500 neon-text">STATUS: TARGET</div>
+                </div>
+                <!-- Warhammer -->
+                <div class="item-card p-4 rounded-xl text-center">
+                    <div class="text-5xl mb-3 text-red-600">&#x2694;</div>
+                    <h3 class="text-lg font-bold text-white">Warhammer Fig.</h3>
+                    <p class="text-xs text-gray-500">Alpha Legion Terminator</p>
+                    <div class="mt-2 text-xs bg-red-900 text-red-300 px-2 py-1 rounded-full border border-red-500 neon-text">STATUS: CONFLICT</div>
+                </div>
+                <!-- Альбедо -->
+                <div class="item-card p-4 rounded-xl text-center">
+                    <div class="text-5xl mb-3 text-purple-400">💀</div>
+                    <h3 class="text-lg font-bold text-white">Альбедо (Overlord)</h3>
+                    <p class="text-xs text-gray-500">Guardian Overseer</p>
+                    <div class="mt-2 text-xs bg-purple-900 text-purple-300 px-2 py-1 rounded-full border border-purple-500 neon-text">STATUS: WAIFU</div>
+                </div>
+                <!-- Nissan GTR 35 -->
+                <div class="item-card p-4 rounded-xl text-center">
+                    <div class="text-5xl mb-3 text-yellow-500">&#x1F697;</div>
+                    <h3 class="text-lg font-bold text-white">Nissan GTR 35</h3>
+                    <p class="text-xs text-gray-500">Scale 1:24</p>
+                    <div class="mt-2 text-xs bg-yellow-900 text-yellow-300 px-2 py-1 rounded-full border border-yellow-500 neon-text">STATUS: VELOCITY</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секция 5: Всякое -->
+        <section id="utilities" class="min-h-[80vh] py-16">
+            <h2 class="text-3xl md:text-5xl font-bold mb-10 text-center neon-text glitch-effect" data-glitch-text="ESSENTIAL UTILITIES">
+                ESSENTIAL UTILITIES <span class="text-sm md:text-base block">(Всякое)</span>
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Чай -->
+                <div class="item-card p-6 rounded-xl relative transition duration-300" onmouseover="startVapor(this)" onmouseout="stopVapor(this)">
+                    <div class="text-5xl mb-4 text-green-400">&#x2615;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Чай</h3>
+                    <p class="text-gray-400">Любой сорт. Чем больше, тем лучше.</p>
+                    <p class="text-sm text-green-300 mt-2">CONFIGURATION: Multiple Varieties. TEMP: High.</p>
+                </div>
+                <!-- Наушники -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-5xl mb-4 text-yellow-500">&#x1F3A7;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Наушники проводные</h3>
+                    <p class="text-gray-400">С микрофоном, 3.5mm jack. Цвет: синий.</p>
+                    <p class="text-sm text-yellow-300 mt-2">INTERFACE: 3.5mm. MOD: Mic.</p>
+                </div>
+                <!-- Коврик для мыши -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-5xl mb-4 text-blue-400">&#x1F4D3;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Коврик для мыши</h3>
+                    <p class="text-gray-400">Размер 220х180мм.</p>
+                    <p class="text-sm text-blue-300 mt-2">SURFACE SIZE: Small (220x180mm).</p>
+                </div>
+                <!-- Ночник Факел -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-5xl mb-4 text-orange-400">&#x1F52F;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Ночник Факел</h3>
+                    <p class="text-gray-400">Из Майнкрафта (пиксельный светильник).</p>
+                    <p class="text-sm text-orange-300 mt-2">POWER SOURCE: Ambient Light. THEME: Minecraft.</p>
+                </div>
+                <!-- Кружка -->
+                <div class="item-card p-6 rounded-xl relative">
+                    <div class="text-5xl mb-4 text-pink-400">&#x26FE;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Кружка</h3>
+                    <p class="text-gray-400">Любая, с любимым принтом.</p>
+                    <p class="text-sm text-pink-300 mt-2">CONTAINER: Beverage. MOD: Custom Print.</p>
+                </div>
+                <!-- Книги Diablo -->
+                <div class="item-card p-6 rounded-xl relative transition duration-300" onmouseover="startDiabloGlow(this)" onmouseout="stopDiabloGlow(this)">
+                    <div class="text-5xl mb-4 text-red-700">&#x1F4DA;</div>
+                    <h3 class="text-xl font-bold mb-2 text-white">Книги по Diablo</h3>
+                    <p class="text-gray-400">Именно с сюжетом, не артбуки. Для погружения в лор.</p>
+                    <p class="text-sm text-red-500 mt-2">TYPE: Lore/Narrative. DOMAIN: Sanctuary.</p>
+                </div>
+            </div>
+
+            <!-- Раздел "Секретный Артефакт" -->
+            <div class="mt-20 text-center">
+                <button id="secret-artifact-btn" class="px-8 py-4 text-white font-bold rounded-full transition duration-300 hover:shadow-2xl hover:text-yellow-300" onclick="showSecretArtifact()">
+                    // ACCESS: ОПЦИОНАЛЬНЫЙ СЕКТОР (Уровень 4)
+                </button>
+            </div>
+            <div id="optional-section" class="mt-8 p-6 rounded-xl bg-purple-900 bg-opacity-30 border border-purple-500">
+                <h3 class="text-3xl font-bold mb-4 text-pink-400 neon-text text-center">СЕКРЕТНЫЙ АРТЕФАКТ: PHONE UPGRADE</h3>
+                <div class="text-center text-white">
+                    <div class="text-7xl mb-4">&#x1F4F1;</div>
+                    <p class="text-xl font-mono">Redmi note 14 pro 4g (или похожий)</p>
+                    <p class="text-lg text-yellow-300 mt-2">КЛЮЧЕВЫЕ СПЕЦИФИКАЦИИ:</p>
+                    <ul class="list-none space-y-1 mt-1 font-mono">
+                        <li>[SPEC]: Amoled Display</li>
+                        <li>[PERFORMANCE]: Must not lag like a *d* creature.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDigitalRain();
+            initializeGlitches();
+            setupIntersectionObserver();
+        });
+
+
+        function initializeDigitalRain() {
+            const container = document.getElementById('digital-rain');
+            const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+{}|:"<>?';
+            const screenWidth = window.innerWidth;
+            const columnWidth = 10;
+            const numColumns = Math.floor(screenWidth / columnWidth);
+
+            for (let i = 0; i < numColumns; i++) {
+                const column = document.createElement('div');
+                column.className = 'rain-column';
+                column.style.left = (i * columnWidth) + 'px';
+                column.style.top = '-' + (Math.random() * 100) + 'vh';
+                column.style.animationDuration = (Math.random() * 10 + 5) + 's';
+                column.style.animationName = 'rain-drop';
+                column.style.animationIterationCount = 'infinite';
+                column.style.animationTimingFunction = 'linear';
+
+                let text = '';
+                const columnHeight = window.innerHeight / 10;
+                for (let j = 0; j < columnHeight; j++) {
+                    text += characters.charAt(Math.floor(Math.random() * characters.length)) + '\n';
+                }
+                column.textContent = text;
+                container.appendChild(column);
+            }
+        }
+
+
+        function initializeGlitches() {
+            document.querySelectorAll('.glitch-effect').forEach(el => {
+                const originalText = el.dataset.glitchText || el.textContent;
+                el.dataset.originalText = originalText;
+
+                startGlitchLoop(el);
+            });
+        }
+
+        function startGlitchLoop(el) {
+            function glitch() {
+                const text = el.dataset.originalText;
+                let glitchedText = '';
+                for (let i = 0; i < text.length; i++) {
+                    glitchedText += Math.random() < 0.1 ? String.fromCharCode(33 + Math.random() * 94) : text[i];
+                }
+                el.textContent = glitchedText;
+
+
+                setTimeout(() => el.textContent = text, 50);
+
+
+                const nextGlitchTime = 1000 + Math.random() * 3000;
+                el.timer = setTimeout(glitch, nextGlitchTime);
+            }
+            glitch();
+        }
+
+        function startDiabloGlow(el) {
+            el.style.boxShadow = '0 0 15px rgba(255, 0, 0, 0.8), inset 0 0 5px rgba(255, 0, 0, 0.4)';
+            el.style.borderColor = 'rgba(255, 0, 0, 0.6)';
+        }
+
+        function stopDiabloGlow(el) {
+            el.style.boxShadow = '0 0 5px rgba(0, 240, 255, 0.1)';
+            el.style.borderColor = 'rgba(0, 240, 255, 0.3)';
+        }
+
+        function startVapor(el) {
+            el.querySelector('div.text-5xl').style.transform = 'translateY(-5px)';
+            el.querySelector('div.text-5xl').style.transition = 'transform 0.5s ease-out';
+            el.querySelector('div.text-5xl').style.textShadow = '0 -5px 10px rgba(0, 255, 0, 0.5)';
+        }
+
+        function stopVapor(el) {
+            el.querySelector('div.text-5xl').style.transform = 'translateY(0)';
+            el.querySelector('div.text-5xl').style.textShadow = 'none';
+        }
+
+        function startGlitch(el) {
+            el.classList.add('glitch-effect-active');
+            el.style.animation = 'glitch 0.2s infinite';
+        }
+
+        function stopGlitch(el) {
+            el.classList.remove('glitch-effect-active');
+            el.style.animation = 'none';
+            el.style.transform = 'translate(0)';
+        }
+
+        function showSecretArtifact() {
+            const section = document.getElementById('optional-section');
+            const button = document.getElementById('secret-artifact-btn');
+            section.classList.toggle('active');
+            if (section.classList.contains('active')) {
+                button.textContent = '// ACCESS: ОПЦИОНАЛЬНЫЙ СЕКТОР (УРОВЕНЬ 4) - АКТИВИРОВАНО';
+            } else {
+                button.textContent = '// ACCESS: ОПЦИОНАЛЬНЫЙ СЕКТОР (УРОВЕНЬ 4)';
+            }
+        }
+
+        function setupIntersectionObserver() {
+            const sections = document.querySelectorAll('section, header');
+            const navLinks = document.querySelectorAll('.nav-link');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const targetId = entry.target.id;
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.dataset.target === targetId) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, {
+                root: null,
+                rootMargin: '0px 0px -50% 0px',
+                threshold: 0
+            });
+
+            sections.forEach(section => observer.observe(section));
+        }
+    </script>
+</body>
+
+</html>
